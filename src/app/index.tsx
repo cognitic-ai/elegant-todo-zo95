@@ -9,6 +9,13 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
+
+const listTransition = LinearTransition.springify().damping(18).stiffness(150);
 
 export default function IndexRoute() {
   const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
@@ -39,7 +46,8 @@ export default function IndexRoute() {
       >
         {/* Progress summary */}
         {totalCount > 0 && (
-          <View
+          <Animated.View
+            layout={listTransition}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -76,7 +84,7 @@ export default function IndexRoute() {
             >
               {completedCount}/{totalCount}
             </Text>
-          </View>
+          </Animated.View>
         )}
 
         {/* Add todo input */}
@@ -84,7 +92,7 @@ export default function IndexRoute() {
 
         {/* Active tasks */}
         {active.length > 0 && (
-          <View style={{ gap: 8 }}>
+          <Animated.View layout={listTransition} style={{ gap: 8 }}>
             {active.map((todo) => (
               <TodoItem
                 key={todo.id}
@@ -93,13 +101,19 @@ export default function IndexRoute() {
                 onDelete={deleteTodo}
               />
             ))}
-          </View>
+          </Animated.View>
         )}
 
         {/* Completed section */}
         {completed.length > 0 && (
-          <View style={{ gap: 8, marginTop: 8 }}>
-            <Text
+          <Animated.View
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(200)}
+            layout={listTransition}
+            style={{ gap: 8, marginTop: 8 }}
+          >
+            <Animated.Text
+              layout={listTransition}
               style={{
                 fontSize: 13,
                 fontWeight: "600",
@@ -110,7 +124,7 @@ export default function IndexRoute() {
               }}
             >
               Completed
-            </Text>
+            </Animated.Text>
             {completed.map((todo) => (
               <TodoItem
                 key={todo.id}
@@ -119,12 +133,14 @@ export default function IndexRoute() {
                 onDelete={deleteTodo}
               />
             ))}
-          </View>
+          </Animated.View>
         )}
 
         {/* Empty state */}
         {totalCount === 0 && (
-          <View
+          <Animated.View
+            entering={FadeIn.duration(400)}
+            exiting={FadeOut.duration(200)}
             style={{
               alignItems: "center",
               justifyContent: "center",
@@ -153,7 +169,7 @@ export default function IndexRoute() {
             >
               Add a new task to get started.
             </Text>
-          </View>
+          </Animated.View>
         )}
       </ScrollView>
     </KeyboardAvoidingView>

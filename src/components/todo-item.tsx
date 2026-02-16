@@ -3,11 +3,16 @@ import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import { useCallback, useRef } from "react";
 import {
-  Animated,
+  Animated as RNAnimated,
   Pressable,
   Text,
   View,
 } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 import type { Todo } from "./todo-store";
 
 interface TodoItemProps {
@@ -17,7 +22,7 @@ interface TodoItemProps {
 }
 
 export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
-  const translateX = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new RNAnimated.Value(0)).current;
   const panStartX = useRef(0);
 
   const handleToggle = useCallback(() => {
@@ -27,7 +32,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
 
   const handleDelete = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    Animated.timing(translateX, {
+    RNAnimated.timing(translateX, {
       toValue: -400,
       duration: 250,
       useNativeDriver: true,
@@ -35,7 +40,12 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
   }, [todo.id, onDelete, translateX]);
 
   return (
-    <View style={{ overflow: "hidden" }}>
+    <Animated.View
+      entering={FadeIn.duration(300)}
+      exiting={FadeOut.duration(200)}
+      layout={LinearTransition.springify().damping(18).stiffness(150)}
+      style={{ overflow: "hidden" }}
+    >
       {/* Delete background */}
       <View
         style={{
@@ -56,7 +66,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         />
       </View>
 
-      <Animated.View
+      <RNAnimated.View
         style={{ transform: [{ translateX }] }}
         onStartShouldSetResponder={() => true}
         onMoveShouldSetResponder={() => true}
@@ -74,7 +84,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
           if (dx < -80) {
             handleDelete();
           } else {
-            Animated.spring(translateX, {
+            RNAnimated.spring(translateX, {
               toValue: 0,
               useNativeDriver: true,
             }).start();
@@ -137,7 +147,7 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
             {todo.text}
           </Text>
         </View>
-      </Animated.View>
-    </View>
+      </RNAnimated.View>
+    </Animated.View>
   );
 }
